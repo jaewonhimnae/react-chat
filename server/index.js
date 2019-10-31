@@ -19,6 +19,7 @@ app.use(cookieParser());
 const { Chat } = require("./models/Chat");
 
 app.use('/api/users', require('./routes/users'));
+app.use('/api/chat', require('./routes/chat'));
 
 
 io.on("connection", socket => {
@@ -27,9 +28,10 @@ io.on("connection", socket => {
 
     connect.then(db => {
       try {
-          let chat = new Chat({ message: msg.chatMessage, sender:msg.userID, type: msg.type })
+          let chat = new Chat({ message: msg.chatMessage, sender:msg.userId, type: msg.type })
 
           chat.save((err, doc) => {
+            console.log(doc)
             if(err) return res.json({ success: false, err })
 
             Chat.find({ "_id": doc._id })

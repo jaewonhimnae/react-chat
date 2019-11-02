@@ -13,6 +13,22 @@ function ChatCard(props) {
                     />
                 }
                 content={
+                    props.message.substring(0, 8) === "uploads/" ?
+                        // this will be either video or image 
+
+                        props.message.substring(props.message.length - 3, props.message.length) === 'mp4' ?
+                            <video
+                                style={{ maxWidth: '200px' }}
+                                src={`http://localhost:5000/${props.message}`} alt="video"
+                                type="video/mp4" controls
+                            />
+                            :
+                            <img
+                                style={{ maxWidth: '200px' }}
+                                src={`http://localhost:5000/${props.message}`}
+                                alt="img"
+                            />
+                        :
                         <p>
                             {props.message}
                         </p>

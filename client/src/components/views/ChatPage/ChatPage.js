@@ -5,6 +5,9 @@ import { connect } from "react-redux";
 import moment from "moment";
 import { getChats, afterPostMessage } from "../../../_actions/chat_actions"
 import ChatCard from "./Sections/ChatCard"
+import Dropzone from 'react-dropzone';
+import Axios from 'axios';
+
 export class ChatPage extends Component {
     state = {
         chatMessage: "",
@@ -23,6 +26,10 @@ export class ChatPage extends Component {
         })
     }
 
+    componentDidUpdate() {
+        this.messagesEnd.scrollIntoView({ behavior: 'smooth' });
+    }
+
     hanleSearchChange = (e) => {
         this.setState({
             chatMessage: e.target.value
@@ -34,6 +41,39 @@ export class ChatPage extends Component {
         && this.props.chats.chats.map((chat) => (
             <ChatCard key={chat._id}  {...chat} />
         ));
+
+    onDrop = (files) => {
+        console.log(files)
+        let formData = new FormData;
+
+        const config = {
+            header: { 'content-type': 'multipart/form-data' }
+        }
+
+        formData.append("file", files[0])
+
+        Axios.post('api/chat/uploadfiles', formData, config)
+            .then(response => {
+                if (response.data.success) {
+                    let chatMessage = response.data.url;
+                    let userId = this.props.user.userData._id
+                    let userName = this.props.user.userData.name;
+                    let userImage = this.props.user.userData.image;
+                    let nowTime = moment();
+                    let type = "VideoOrImage"
+
+                    this.socket.emit("Input Chat Message", {
+                        chatMessage,
+                        userId,
+                        userName,
+                        userImage,
+                        nowTime,
+                        type
+                    });
+                }
+            })
+    }
+
 
     submitChatMessage = (e) => {
         e.preventDefault();
@@ -64,7 +104,7 @@ export class ChatPage extends Component {
                 </div>
 
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                    <div className="infinite-container" style={{ height: '500px' }}>
+                    <div className="infinite-container" style={{ height: '500px', overflowY: 'scroll' }}>
                         {this.props.chats && (
                             this.renderCards()
                         )}
@@ -89,7 +129,18 @@ export class ChatPage extends Component {
                                 />
                             </Col>
                             <Col span={2}>
-
+                                <Dropzone onDrop={this.onDrop}>
+                                    {({ getRootProps, getInputProps }) => (
+                                        <section>
+                                            <div {...getRootProps()}>
+                                                <input {...getInputProps()} />
+                                                <Button>
+                                                    <Icon type="upload" />
+                                                </Button>
+                                            </div>
+                                        </section>
+                                    )}
+                                </Dropzone>
                             </Col>
 
                             <Col span={4}>

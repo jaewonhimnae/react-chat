@@ -44,6 +44,14 @@ export class ChatPage extends Component {
 
     onDrop = (files) => {
         console.log(files)
+
+
+        if (this.props.user.userData && !this.props.user.userData.isAuth) {
+            return alert('Please Log in first');
+        }
+
+
+
         let formData = new FormData;
 
         const config = {
@@ -77,6 +85,13 @@ export class ChatPage extends Component {
 
     submitChatMessage = (e) => {
         e.preventDefault();
+
+        if (this.props.user.userData && !this.props.user.userData.isAuth) {
+            return alert('Please Log in first');
+        }
+
+
+
 
         let chatMessage = this.state.chatMessage
         let userId = this.props.user.userData._id
